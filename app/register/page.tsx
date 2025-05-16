@@ -71,7 +71,7 @@ export default function Register() {
         </div>
       </div>
 
-      <div className="hidden md:block bg-gradient-to-br from-pink-400 to-pink-600">
+      <div className="hidden md:block bg-linear-to-br from-pink-400 to-pink-600">
         <div className="h-full flex items-center justify-center p-8">
           <div className="max-w-md text-white">
             <h2 className="text-3xl font-bold mb-4">Manage your crypto with ease</h2>
