@@ -2,29 +2,58 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { PiggyLogo } from "@/components/piggy-logo"
+import apiClient from "@/api/apiClient"
+import axios from "axios"
+import {toast} from "@/components/ui/use-toast"
+import { useAuth } from "@/components/providers/auth-provider"
+interface RegisterModel {
+  email: string
+  password: string
+  username: string
+}
+
+interface ApiResponse<T> {
+  success: boolean
+  data?: T
+  message?: string
+  errors?: string[]
+}
 
 export default function Register() {
-  const [isLoading, setIsLoading] = useState(false)
+  const [name, setName] = useState("")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [username, setUsername] = useState("")
+  const { register, isLoading, isAuthenticated } = useAuth()
+
   const router = useRouter()
+
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push("/dashboard")
+    }
+  }, [isAuthenticated, router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsLoading(true)
-
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false)
-      router.push("/dashboard")
-    }, 1500)
+    
+    const success = await register(email, password, username)
+    if (success) {
+      // Redirect to login after a short delay to allow the user to see the success toast
+      setTimeout(() => {
+        router.push("/login")
+      }, 1500)
+    }
   }
-
+  
   return (
     <div className="grid md:grid-cols-2 min-h-screen">
       <div className="flex flex-col p-8 md:p-12">
@@ -43,20 +72,27 @@ export default function Register() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="name">Name</Label>
-                <Input id="name" placeholder="Enter your name" required />
+                <Input id="name" placeholder="Enter your fullname" required  value={name} onChange={e => setName(e.target.value)}/>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="username">Username</Label>
+                <Input id="username" placeholder="Create a username" required  value={username} onChange={e => setUsername(e.target.value)} />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="Enter your email" required />
+                <Input id="email" type="email"  placeholder="Enter your email" required  value={email} onChange={e => setEmail(e.target.value)}/>
               </div>
+
+       
 
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
-                <Input id="password" type="password" placeholder="Create a password" required />
+                <Input id="password" type="password" placeholder="Create a password" required  value={password} onChange={e => setPassword(e.target.value)} />
               </div>
 
-              <Button type="submit" className="w-full bg-pink-500 hover:bg-pink-600" disabled={isLoading}>
+              <Button type="submit"  className="w-full bg-pink-500 hover:bg-pink-600" disabled={isLoading}>
                 {isLoading ? "Creating account..." : "Create account"}
               </Button>
             </form>

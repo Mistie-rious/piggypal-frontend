@@ -2,27 +2,62 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { PiggyLogo } from "@/components/piggy-logo"
+import apiClient from "@/api/apiClient"
+import { toast } from "@/components/ui/use-toast"
+import { useAuth } from "@/components/providers/auth-provider"
+import axios from "axios"
+
+
+interface LoginModel {
+  email: string
+  password: string
+}
+
+interface ApiResponse<T> {
+  success: boolean
+  data?: T
+  message?: string
+  errors?: string[]
+}
+
+interface LoginResponse {
+  token: string
+  userId: string
+}
 
 export default function Login() {
-  const [isLoading, setIsLoading] = useState(false)
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const { login, isLoading, isAuthenticated } = useAuth()
+  const [error, setError] = useState<string | null>(null)
   const router = useRouter()
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push("/dashboard")
+    }
+  }, [isAuthenticated, router])
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsLoading(true)
-
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false)
+    console.log('hi')
+    
+    const success = await login(email, password)
+    if (success) {
       router.push("/dashboard")
-    }, 1500)
+    }
+    else{
+      console.log('no')
+    }
+    
   }
 
   return (
@@ -43,12 +78,14 @@ export default function Login() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="Enter your email" required />
+                <Input id="email" type="email" placeholder="Enter your email" required   value={email}
+                  onChange={(e) => setEmail(e.target.value)} />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
-                <Input id="password" type="password" placeholder="Enter your password" required />
+                <Input id="password" type="password" placeholder="Enter your password" required   value={password}
+                  onChange={(e) => setPassword(e.target.value)} />
               </div>
 
               <div className="text-right">

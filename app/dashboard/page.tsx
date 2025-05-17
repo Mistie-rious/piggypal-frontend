@@ -4,6 +4,8 @@ import { DashboardLayout } from "@/components/dashboard-layout"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ArrowUpRight, ArrowDownLeft, TrendingUp } from "lucide-react"
+import { ProtectedRoute } from "@/components/protectedRoute"
+import { useAuth } from "@/components/providers/auth-provider"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
 import Link from "next/link"
 
@@ -26,7 +28,10 @@ const recentTransactions = [
 ]
 
 export default function Dashboard() {
+
+  const { user, logout } = useAuth();
   return (
+    <ProtectedRoute>
     <DashboardLayout>
       <div className="p-6 space-y-6">
         <div className="flex items-center justify-between">
@@ -227,5 +232,6 @@ export default function Dashboard() {
         </Card>
       </div>
     </DashboardLayout>
+    </ProtectedRoute>
   )
 }

@@ -3,6 +3,9 @@ import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
+import { Toaster } from "@/components/ui/toaster"
+import { Providers } from "@/components/providers/Providers"
+
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -22,9 +25,13 @@ export default function RootLayout({
     className="light"                 // ← match your defaultTheme
     style={{ colorScheme: 'light' }} >
       <body className={inter.className}>
+      <Providers>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
           {children}
+          <Toaster/>
         </ThemeProvider>
+        </Providers>
+   
       </body>
     </html>
   )
