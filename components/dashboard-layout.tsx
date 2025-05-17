@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { LayoutDashboard, BarChart3, LogOut, Menu, X } from "lucide-react"
 import { type ReactNode, useState } from "react"
 import { cn } from "@/lib/utils"
+import { ToastContainer, toast } from 'react-toastify';
 import { useAuth } from "./providers/auth-provider"
 interface DashboardLayoutProps {
   children: ReactNode
@@ -66,6 +67,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
           <div className="p-4 border-t">
             <Button onClick={handleSubmit} variant="ghost" className="w-full justify-start text-gray-700 hover:bg-pink-50 hover:text-pink-600">
+              <ToastContainer/>
               <LogOut size={18} className="mr-2" />
               <span>Logout</span>
             </Button>

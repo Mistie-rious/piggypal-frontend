@@ -10,10 +10,10 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { PiggyLogo } from "@/components/piggy-logo"
 import apiClient from "@/api/apiClient"
-import { toast } from "@/components/ui/use-toast"
+
 import { useAuth } from "@/components/providers/auth-provider"
 import axios from "axios"
-
+import { ToastContainer, toast } from 'react-toastify';
 
 interface LoginModel {
   email: string
@@ -76,6 +76,7 @@ export default function Login() {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
+              <ToastContainer/>
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input id="email" type="email" placeholder="Enter your email" required   value={email}

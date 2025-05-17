@@ -4,7 +4,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { useRouter } from "next/navigation";
 import apiClient from "@/api/apiClient";
 import { useToast } from "@/hooks/use-toast"
-
+import { ToastContainer, toast } from 'react-toastify';
 import axios from "axios";
 
 // Define our interfaces
@@ -55,7 +55,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const { toast } = useToast()
+  
 
   // Check if user is already logged in on mount
   useEffect(() => {
@@ -96,11 +96,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (!resp.data.success) {
         const errorMsg = resp.data.errors?.join(", ") ?? resp.data.message ?? "Unknown error";
         console.error(`Login failed: ${errorMsg}`);
-        toast({
-          variant: "destructive",
-          title: "Login failed",
-          description: errorMsg,
-        });
+        toast.error(errorMsg, {
+          theme: "light",
+          });
         setError(errorMsg);
         return false;
       }
@@ -117,7 +115,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
       
       console.log(`User ${userId} successfully logged in`);
-      toast({  variant: "success",title: "Login successful", description: "Welcome back!" });
+      toast.success("Login successful!", {
+        theme: "light",
+        });
       return true;
     } catch (err: any) {
       console.error("Login error:", err);
@@ -126,25 +126,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         
         if (err.response?.status === 401) {
           setError("Invalid credentials");
-          toast({ variant: "destructive", title: "Invalid credentials" });
+          toast.error('Invalid Credentials', {
+            theme: "light",
+            });
         } else {
           const statusCode = err.response?.status || "unknown";
           const errorMsg = `Server error (${statusCode}): ${err.response?.data?.message || err.message}`;
           setError(errorMsg);
-          toast({ 
-            variant: "destructive", 
-            title: "Server error", 
-            description: `Status: ${statusCode}` 
-          });
+          toast.error('Server Error!', {
+            theme: "light",
+            });
         }
       } else {
         console.error("Non-axios error:", err);
         setError("Network error. Please try again.");
-        toast({ 
-          variant: "destructive", 
-          title: "Network error", 
-          description: "Connection failed. Please try again." 
-        });
+        toast.error('Network Error!', {
+          theme: "light",
+          });
       }
       return false;
     } finally {
@@ -161,32 +159,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const response = await apiClient.post<ApiResponse<null>>("/auth/register", { email, password, username });
       
       if (!response.data.success) {
-        toast({
-          variant: "destructive",
-          title: "Registration failed",
-          description: response.data.errors?.join(", ") ?? response.data.message,
-        });
+        toast.error('Registration failed!', {
+          theme: "light",
+          });
         setError(response.data.message || "Registration failed");
         return false;
       }
       
-      toast({  variant: "success",title: "Registration successful", description: "You can now log in" });
+      toast.success('Registration successful!', {
+        theme: "light",
+        });
       return true;
     } catch (err: any) {
       if (axios.isAxiosError(err) && err.response) {
         setError(`Server error: ${err.response.status}`);
-        toast({
-          variant: "destructive",
-          title: "Server error",
-          description: `Status code: ${err.response.status}`,
-        });
+        toast.error('Server error!', {
+          theme: "light",
+          });
       } else {
         setError("Network error. Please try again.");
-        toast({
-          variant: "destructive",
-          title: "Network error",
-          description: "Please try again.",
-        });
+        toast.error('Network Error!', {
+          theme: "light",
+          });
       }
       return false;
     } finally {
@@ -198,7 +192,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     sessionStorage.removeItem("jwtToken");
     sessionStorage.removeItem("userId");
     sessionStorage.removeItem("userEmail");
-    toast({  variant: "success",title: "Logout successful!", description: "Logout successful!" });
+    toast.success('Logout successful!', {
+      theme: "light",
+      });
     setUser(null);
     router.push("/login");
 

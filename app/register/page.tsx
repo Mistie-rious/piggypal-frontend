@@ -11,8 +11,9 @@ import { useRouter } from "next/navigation"
 import { PiggyLogo } from "@/components/piggy-logo"
 import apiClient from "@/api/apiClient"
 import axios from "axios"
-import {toast} from "@/components/ui/use-toast"
+
 import { useAuth } from "@/components/providers/auth-provider"
+import { ToastContainer, toast } from 'react-toastify';
 interface RegisterModel {
   email: string
   password: string
@@ -70,6 +71,7 @@ export default function Register() {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
+              <ToastContainer/>
               <div className="space-y-2">
                 <Label htmlFor="name">Name</Label>
                 <Input id="name" placeholder="Enter your fullname" required  value={name} onChange={e => setName(e.target.value)}/>
