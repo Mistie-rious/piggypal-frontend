@@ -3,7 +3,8 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import apiClient from "@/api/apiClient";
-import { toast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast"
+
 import axios from "axios";
 
 // Define our interfaces
@@ -54,6 +55,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const { toast } = useToast()
 
   // Check if user is already logged in on mount
   useEffect(() => {
@@ -115,7 +117,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
       
       console.log(`User ${userId} successfully logged in`);
-      toast({ title: "Login successful", description: "Welcome back!" });
+      toast({  variant: "success",title: "Login successful", description: "Welcome back!" });
       return true;
     } catch (err: any) {
       console.error("Login error:", err);
@@ -168,7 +170,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return false;
       }
       
-      toast({ title: "Registration successful", description: "You can now log in" });
+      toast({  variant: "success",title: "Registration successful", description: "You can now log in" });
       return true;
     } catch (err: any) {
       if (axios.isAxiosError(err) && err.response) {
@@ -196,8 +198,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     sessionStorage.removeItem("jwtToken");
     sessionStorage.removeItem("userId");
     sessionStorage.removeItem("userEmail");
+    toast({  variant: "success",title: "Logout successful!", description: "Logout successful!" });
     setUser(null);
     router.push("/login");
+
   };
 
   return (

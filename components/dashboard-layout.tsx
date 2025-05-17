@@ -6,14 +6,23 @@ import { Button } from "@/components/ui/button"
 import { LayoutDashboard, BarChart3, LogOut, Menu, X } from "lucide-react"
 import { type ReactNode, useState } from "react"
 import { cn } from "@/lib/utils"
-
+import { useAuth } from "./providers/auth-provider"
 interface DashboardLayoutProps {
   children: ReactNode
 }
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
+  const { user, logout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    console.log('hi')
+     logout()
+
+    
+  }
   return (
     <div className="min-h-screen flex flex-col md:flex-row">
       {/* Mobile sidebar toggle */}
@@ -56,7 +65,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           </nav>
 
           <div className="p-4 border-t">
-            <Button variant="ghost" className="w-full justify-start text-gray-700 hover:bg-pink-50 hover:text-pink-600">
+            <Button onClick={handleSubmit} variant="ghost" className="w-full justify-start text-gray-700 hover:bg-pink-50 hover:text-pink-600">
               <LogOut size={18} className="mr-2" />
               <span>Logout</span>
             </Button>
