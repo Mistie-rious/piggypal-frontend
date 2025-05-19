@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { PiggyLogo } from "./piggy-logo"
 import { Button } from "@/components/ui/button"
-import { LayoutDashboard, BarChart3, LogOut, Menu, X } from "lucide-react"
+import { LayoutDashboard, BarChart3, LogOut, Menu, X, Sun } from "lucide-react"
 import { type ReactNode, useState } from "react"
 import { cn } from "@/lib/utils"
 import { ToastContainer, toast } from 'react-toastify';
@@ -49,6 +49,14 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           </div>
 
           <nav className="flex-1 p-4 space-y-1">
+          <div  className="flex items-center space-x-3 px-3 py-2 text-gray-700 ">
+          
+
+          <Sun size={18} />
+       <span>Hi</span> 
+          <span className="text-pink-500">Mistura!</span>
+          </div>
+      
             <Link
               href="/dashboard"
               className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-pink-50 hover:text-pink-600"
@@ -63,14 +71,18 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               <BarChart3 size={18} />
               <span>Transactions</span>
             </Link>
+          {/* <div className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-pink-50 hover:text-pink-60">
+            <span>Welcome, Mistura!</span>
+            </div> */}
           </nav>
 
           <div className="p-4 border-t">
             <Button onClick={handleSubmit} variant="ghost" className="w-full justify-start text-gray-700 hover:bg-pink-50 hover:text-pink-600">
-              <ToastContainer/>
+             
               <LogOut size={18} className="mr-2" />
               <span>Logout</span>
             </Button>
+            <ToastContainer/>
           </div>
         </div>
       </div>

@@ -25,7 +25,7 @@ export default function RootLayout({
     style={{ colorScheme: 'light' }} >
       <body className={inter.className}>
       <Providers>
-\
+
           {children}
           
   

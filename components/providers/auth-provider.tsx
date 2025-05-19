@@ -96,9 +96,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (!resp.data.success) {
         const errorMsg = resp.data.errors?.join(", ") ?? resp.data.message ?? "Unknown error";
         console.error(`Login failed: ${errorMsg}`);
-        toast.error(errorMsg, {
-          theme: "light",
-          });
+        toast.error(errorMsg);
         setError(errorMsg);
         return false;
       }
@@ -115,9 +113,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
       
       console.log(`User ${userId} successfully logged in`);
-      toast.success("Login successful!", {
-        theme: "light",
-        });
+      toast.success("Login successful!");
       return true;
     } catch (err: any) {
       console.error("Login error:", err);
@@ -126,23 +122,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         
         if (err.response?.status === 401) {
           setError("Invalid credentials");
-          toast.error('Invalid Credentials', {
-            theme: "light",
-            });
+          toast.error('Invalid Credentials');
         } else {
           const statusCode = err.response?.status || "unknown";
           const errorMsg = `Server error (${statusCode}): ${err.response?.data?.message || err.message}`;
           setError(errorMsg);
-          toast.error('Server Error!', {
-            theme: "light",
-            });
+          toast.error('Server Error!');
         }
       } else {
         console.error("Non-axios error:", err);
         setError("Network error. Please try again.");
-        toast.error('Network Error!', {
-          theme: "light",
-          });
+        toast.error('Network Error!');
       }
       return false;
     } finally {
@@ -159,28 +149,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const response = await apiClient.post<ApiResponse<null>>("/auth/register", { email, password, username });
       
       if (!response.data.success) {
-        toast.error('Registration failed!', {
-          theme: "light",
-          });
+        toast.error('Registration failed!');
         setError(response.data.message || "Registration failed");
         return false;
       }
       
-      toast.success('Registration successful!', {
-        theme: "light",
-        });
+      toast.success('Registration successful!');
       return true;
     } catch (err: any) {
       if (axios.isAxiosError(err) && err.response) {
         setError(`Server error: ${err.response.status}`);
-        toast.error('Server error!', {
-          theme: "light",
-          });
+        toast.error('Server error!');
       } else {
         setError("Network error. Please try again.");
-        toast.error('Network Error!', {
-          theme: "light",
-          });
+        toast.error('Network Error!');
       }
       return false;
     } finally {
@@ -192,9 +174,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     sessionStorage.removeItem("jwtToken");
     sessionStorage.removeItem("userId");
     sessionStorage.removeItem("userEmail");
-    toast.success('Logout successful!', {
-      theme: "light",
-      });
+    toast.success('Logout successful!');
     setUser(null);
     router.push("/login");
 
