@@ -8,15 +8,23 @@ import { type ReactNode, useState } from "react"
 import { cn } from "@/lib/utils"
 import { ToastContainer, toast } from 'react-toastify';
 import { useAuth } from "./providers/auth-provider"
+import { useMe } from "@/hooks/useMe"
+import { usePathname } from "next/navigation"
 interface DashboardLayoutProps {
   children: ReactNode
 }
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const { user, logout } = useAuth();
+  const { data: me, isLoading: meLoading, error: meError } = useMe();
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
+  const pathname = usePathname();
 
+  const links = [
+    { href: "/dashboard", label: "Dashboard", Icon: LayoutDashboard },
+    { href: "/transactions", label: "Transactions", Icon: BarChart3 },
+  ];
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     console.log('hi')
@@ -52,28 +60,33 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           <div  className="flex items-center space-x-3 px-3 py-2 text-gray-700 ">
           
 
-          <Sun size={18} />
-       <span>Hi</span> 
-          <span className="text-pink-500">Mistura!</span>
+      <div className="space-x-1 text-xl">
+       <span className="text-gray-500 font-bold">Hi</span> 
+          <span className="text-pink-300 font-extrabold">{me?.data.username}</span>
+          </div>
           </div>
       
-            <Link
-              href="/dashboard"
-              className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-pink-50 hover:text-pink-600"
-            >
-              <LayoutDashboard size={18} />
-              <span>Dashboard</span>
-            </Link>
-            <Link
-              href="/transactions"
-              className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-pink-50 hover:text-pink-600"
-            >
-              <BarChart3 size={18} />
-              <span>Transactions</span>
-            </Link>
-          {/* <div className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-md hover:bg-pink-50 hover:text-pink-60">
-            <span>Welcome, Mistura!</span>
-            </div> */}
+          {links.map(({ href, label, Icon }) => {
+        const isActive = pathname === href;
+        return (
+          <Link
+            key={href}
+            href={href}
+            className={`
+              flex items-center gap-3 px-3 py-2 font-medium rounded-md
+              ${isActive
+                ? "bg-pink-50 text-pink-600"   /* active: pink bg, gray text */
+                : "text-gray-700"
+              }
+            `}
+          >
+            <Icon size={18} />
+            <span>{label}</span>
+          </Link>
+        );
+      })}
+
+       
           </nav>
 
           <div className="p-4 border-t">

@@ -35,6 +35,14 @@ export default function Dashboard() {
   const { data: walletData, isLoading: walletLoading } = useBalanceWallet(userId);
   const { data: transactionsData, isLoading: transLoading } = useTransactions(walletId);
 
+
+const ethToNairaRate = 4500000; 
+const nairaBalanceRaw = walletData?.balance * ethToNairaRate; 
+
+const nairaBalance = `₦${nairaBalanceRaw.toLocaleString("en-NG", {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2
+})}`;
   // Handle loading and error states after all hooks
   if (meLoading || walletLoading || transLoading) {
     return <div>Loading...</div>;
@@ -56,7 +64,7 @@ export default function Dashboard() {
         <div className="p-6 space-y-6">
           <div className="flex items-center justify-between">
             <div className="flex flex-col space-y-3">
-              <h1 className="text-xl font-medium">Welcome, {me?.data.username || "User"}!</h1>
+             
               <h2 className="text-2xl font-bold">Dashboard</h2>
             </div>
             <div className="flex gap-2">
@@ -84,7 +92,7 @@ export default function Dashboard() {
               <CardContent>
                 <div className="flex items-baseline">
                   <span className="text-3xl font-bold">
-                    ETH {walletData.balance}
+                  {nairaBalance}
                   </span>
                   <span className="ml-2 text-sm text-green-500 flex items-center">
                     <TrendingUp className="h-3 w-3 mr-1" />
@@ -126,7 +134,7 @@ export default function Dashboard() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="font-medium">₦ 450,000</div>
+                      <div className="font-medium">{nairaBalance}</div>
                       <div className="text-xs text-green-500">+2.4%</div>
                     </div>
                   </div>
