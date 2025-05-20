@@ -8,13 +8,21 @@ export const getBalance = async (walletAddress: string) => {
     return data;
 }
 
-export const sendMoney = async (senderAddress: string, amount: number, walletId: string, receiverAddress: string, description:string) => {
+export const sendMoney = async (senderAddress: string, amount: number, walletId: string, receiverAddress: string, description:string, currency:number) => {
     const {data} = await apiClient.post('transactions/send', {
         sender: senderAddress,
         amount,
         walletId,
         receiver: receiverAddress,
         description,
+        currency
+    })
+    return data;
+}
+
+export const unlockWallet = async (walletId: string, password: string) => {
+    const {data} = await apiClient.post('transactions/unlock', {
+        walletId, password
     })
     return data;
 }

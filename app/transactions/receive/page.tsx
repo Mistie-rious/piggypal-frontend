@@ -7,9 +7,27 @@ import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ArrowDownLeft } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useSendMoney } from "@/hooks/useTransactions"
+import { useMe } from "@/hooks/useMe"
+import { UnlockWalletDialog } from "@/components/UnlockWallet"
+import { useBalanceWallet } from "@/hooks/useTransactions"
 import Link from "next/link"
+import { Input } from "@/components/ui/input"
+import { toast , ToastContainer} from "react-toastify"
+import LoadingSpinner from "@/components/loadingSpinner"
 
 export default function Receive() {
+  const { data: me, isLoading: meLoading, error: meError } = useMe();
+  const myAddresses = me?.data.walletAddress!;
+  const displayAddress = myAddresses
+  ? `${myAddresses.slice(0, 20)}...${myAddresses.slice(-4)}`
+  : ""
+  console.log("myAddresses", myAddresses);
+
+
+if (meLoading){
+  return <LoadingSpinner size={80} backdropOpacity={70} />
+}
   return (
     <DashboardLayout>
       <div className="p-6 flex justify-center">
@@ -20,13 +38,13 @@ export default function Receive() {
           </div>
 
           <Tabs defaultValue="receive" className="w-full">
-            <TabsList className="grid grid-cols-3 mb-6">
+            <TabsList className="grid grid-cols-2 mb-6">
               <TabsTrigger value="send" asChild>
                 <Link href="/transactions/send">Send</Link>
               </TabsTrigger>
-              <TabsTrigger value="transfer" asChild>
+              {/* <TabsTrigger value="transfer" asChild>
                 <Link href="/transactions/transfer">Transfer</Link>
-              </TabsTrigger>
+              </TabsTrigger> */}
               <TabsTrigger value="receive">Receive</TabsTrigger>
             </TabsList>
 
@@ -41,13 +59,11 @@ export default function Receive() {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="main">Main Wallet</SelectItem>
-                        <SelectItem value="savings">Savings Wallet</SelectItem>
-                        <SelectItem value="business">Business Wallet</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
 
-                  <div className="flex justify-center py-6">
+                  {/* <div className="flex justify-center py-6">
                     <div className="bg-gray-100 p-4 rounded-lg">
                       <div className="w-48 h-48 bg-white flex items-center justify-center border">
                         <div className="text-center">
@@ -56,15 +72,15 @@ export default function Receive() {
                         </div>
                       </div>
                     </div>
-                  </div>
+                  </div> */}
 
-                  <div className="space-y-2">
+<div className="space-y-2">
                     <Label htmlFor="wallet-address">Wallet Address</Label>
                     <div className="relative">
-                      <input
+                      <Input
                         id="wallet-address"
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                        value="bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh"
+                        className="pr-10 truncate"
+                        value={displayAddress}
                         readOnly
                       />
                       <Button
@@ -72,20 +88,17 @@ export default function Receive() {
                         size="sm"
                         className="absolute right-1 top-1 h-7"
                         onClick={() => {
-                          navigator.clipboard.writeText("bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh")
+                          navigator.clipboard.writeText(myAddresses)
+                          toast.info("Address copied to clipboard!")
                         }}
                       >
                         Copy
                       </Button>
                     </div>
+                    <ToastContainer/>
                   </div>
 
-                  <div className="pt-4">
-                    <Button className="w-full bg-pink-500 hover:bg-pink-600">
-                      <ArrowDownLeft className="mr-2 h-4 w-4" />
-                      Generate New Address
-                    </Button>
-                  </div>
+                  
                 </CardContent>
               </Card>
             </TabsContent>

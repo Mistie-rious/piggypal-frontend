@@ -1,42 +1,25 @@
 "use client"
 
-import type React from "react"
-
-import { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { PiggyLogo } from "@/components/piggy-logo"
-import apiClient from "@/api/apiClient"
-
+import { ToastContainer, toast } from 'react-toastify'
 import { useAuth } from "@/components/providers/auth-provider"
-import axios from "axios"
-import { ToastContainer, toast } from 'react-toastify';
+import LoadingSpinner from "@/components/loadingSpinner"
 
 interface LoginModel {
   email: string
   password: string
 }
 
-interface ApiResponse<T> {
-  success: boolean
-  data?: T
-  message?: string
-  errors?: string[]
-}
-
-interface LoginResponse {
-  token: string
-  userId: string
-}
-
 export default function Login() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const { login, isLoading, isAuthenticated } = useAuth()
-  const [error, setError] = useState<string | null>(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -45,82 +28,100 @@ export default function Login() {
     }
   }, [isAuthenticated, router])
 
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('hi')
-    
-    const success = await login(email, password)
-    if (success) {
-      router.push("/dashboard")
+    try {
+      const success = await login(email, password)
+      if (!success) {
+        toast.error("Invalid credentials. Please try again.")
+      }
+      // on success, isAuthenticated changes and effect triggers redirect
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Login failed.")
     }
-    else{
-      console.log('no')
-    }
-    
   }
 
   return (
-    <div className="grid md:grid-cols-2 min-h-screen">
-      <div className="flex flex-col p-8 md:p-12">
-        <div className="flex items-center gap-2 mb-8">
-          <PiggyLogo className="h-8 w-8 text-pink-500" />
-          <span className="font-bold text-xl">PiggyPal</span>
-        </div>
+    <>
+      {isLoading && <LoadingSpinner size={80} backdropOpacity={70} />}
+      <div className="grid md:grid-cols-2 min-h-screen">
+        <div className="flex flex-col p-8 md:p-12">
+          <div className="flex items-center gap-2 mb-8">
+            <PiggyLogo className="h-8 w-8 text-pink-500" />
+            <span className="font-bold text-xl">PiggyPal</span>
+          </div>
 
-        <div className="flex-1 flex flex-col justify-center max-w-md mx-auto w-full">
-          <div className="space-y-6">
-            <div className="space-y-2 text-center">
-              <h1 className="text-3xl font-bold">Welcome back</h1>
-              <p className="text-gray-500">Enter your credentials to access your account</p>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <ToastContainer/>
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="Enter your email" required   value={email}
-                  onChange={(e) => setEmail(e.target.value)} />
+          <div className="flex-1 flex flex-col justify-center max-w-md mx-auto w-full">
+            <div className="space-y-6">
+              <div className="space-y-2 text-center">
+                <h1 className="text-3xl font-bold">Welcome back</h1>
+                <p className="text-gray-500">Enter your credentials to access your account</p>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input id="password" type="password" placeholder="Enter your password" required   value={password}
-                  onChange={(e) => setPassword(e.target.value)} />
-              </div>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <ToastContainer />
 
-              <div className="text-right">
-                <Link href="#" className="text-sm text-pink-500 hover:underline">
-                  Forgot password?
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="Enter your email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="password">Password</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="Enter your password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                </div>
+
+                <div className="text-right">
+                  <Link href="#" className="text-sm text-pink-500 hover:underline">
+                    Forgot password?
+                  </Link>
+                </div>
+
+                <Button
+                  type="submit"
+                  className="w-full bg-pink-500 hover:bg-pink-600"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Logging in..." : "Login"}
+                </Button>
+              </form>
+
+              <div className="text-center text-sm">
+                Don't have an account?{' '}
+                <Link href="/register" className="text-pink-500 hover:underline">
+                  Create account
                 </Link>
               </div>
+            </div>
+          </div>
+        </div>
 
-              <Button type="submit" className="w-full bg-pink-500 hover:bg-pink-600" disabled={isLoading}>
-                {isLoading ? "Logging in..." : "Login"}
-              </Button>
-            </form>
-
-            <div className="text-center text-sm">
-              Don't have an account?{" "}
-              <Link href="/register" className="text-pink-500 hover:underline">
-                Create account
-              </Link>
+        <div className="hidden md:block bg-linear-to-br from-pink-400 to-pink-600">
+          <div className="h-full flex items-center justify-center p-8">
+            <div className="max-w-md text-white">
+              <h2 className="text-3xl font-bold mb-4">Manage your crypto with ease</h2>
+              <p className="opacity-90">
+                PiggyPal provides a simple and secure way to manage your cryptocurrency. Send, receive, and track your
+                assets all in one place.
+              </p>
             </div>
           </div>
         </div>
       </div>
-
-      <div className="hidden md:block bg-linear-to-br from-pink-400 to-pink-600">
-        <div className="h-full flex items-center justify-center p-8">
-          <div className="max-w-md text-white">
-            <h2 className="text-3xl font-bold mb-4">Manage your crypto with ease</h2>
-            <p className="opacity-90">
-              PiggyPal provides a simple and secure way to manage your cryptocurrency. Send, receive, and track your
-              assets all in one place.
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
+    </>
   )
 }

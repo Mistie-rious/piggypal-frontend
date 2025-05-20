@@ -10,6 +10,8 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import Link from "next/link"
 import { useBalanceWallet, useTransactions } from "@/hooks/useTransactions"
 import { useMe } from "@/hooks/useMe"
+import { format, parseISO } from "date-fns";
+import LoadingSpinner from "@/components/loadingSpinner"
 
 // Sample data for the chart
 const chartData = [
@@ -36,6 +38,39 @@ export default function Dashboard() {
   const { data: transactionsData, isLoading: transLoading } = useTransactions(walletId);
 
 
+  const chartDataFromTransactions = (() => {
+    if (!transactionsData || transactionsData.length === 0) return [];
+  
+    const ethToNaira = 4500000;
+    const cumulativeData: { name: string; balance: number }[] = [];
+  
+    let cumulativeBalance = 0;
+  
+    // Sort by timestamp (oldest first)
+    const sortedTx = [...transactionsData].sort(
+      (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+    );
+  
+    for (const tx of sortedTx) {
+      const timeLabel = format(parseISO(tx.createdAt), "HH:mm:ss");
+      const amountInNaira = tx.amount * ethToNaira;
+  
+      if (tx.TransactionType === 1) {
+        cumulativeBalance += amountInNaira;
+      } else {
+        cumulativeBalance -= amountInNaira;
+      }
+  
+      cumulativeData.push({
+        name: timeLabel,  // use HH:mm:ss as X axis
+        balance: cumulativeBalance,
+      });
+    }
+  
+    return cumulativeData;
+  })();
+
+
 const ethToNairaRate = 4500000; 
 const nairaBalanceRaw = walletData?.balance * ethToNairaRate; 
 
@@ -45,7 +80,7 @@ const nairaBalance = `₦${nairaBalanceRaw.toLocaleString("en-NG", {
 })}`;
   // Handle loading and error states after all hooks
   if (meLoading || walletLoading || transLoading) {
-    return <div>Loading...</div>;
+    return <div> <LoadingSpinner/></div>;
   }
 
   if (meError) {
@@ -152,26 +187,24 @@ const nairaBalance = `₦${nairaBalanceRaw.toLocaleString("en-NG", {
             <CardContent>
               <div className="h-[300px]">
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart
-                    data={chartData}
-                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                    <XAxis dataKey="name" stroke="#888888" />
-                    <YAxis stroke="#888888" tickFormatter={(value) => `₦${value / 1000}k`} />
-                    <Tooltip
-                      formatter={(value) => [`₦ ${value}`, "Balance"]}
-                      labelFormatter={(label) => `${label} 2023`}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="balance"
-                      stroke="#ec4899"
-                      strokeWidth={2}
-                      dot={{ r: 4, strokeWidth: 2 }}
-                      activeDot={{ r: 6, strokeWidth: 2 }}
-                    />
-                  </LineChart>
+                <LineChart
+  data={chartDataFromTransactions}
+  margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+>
+  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+  <XAxis dataKey="name" stroke="#888888" />
+  <YAxis stroke="#888888" tickFormatter={(value) => `₦${value / 1000}k`} />
+  <Tooltip formatter={(value) => [`₦ ${value}`, "Balance"]} />
+  <Line
+    type="monotone"
+    dataKey="balance"
+    stroke="#ec4899"
+    strokeWidth={2}
+    dot={{ r: 4, strokeWidth: 2 }}
+    activeDot={{ r: 6, strokeWidth: 2 }}
+  />
+</LineChart>
+
                 </ResponsiveContainer>
               </div>
             </CardContent>

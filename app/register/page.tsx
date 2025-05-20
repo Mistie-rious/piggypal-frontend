@@ -47,8 +47,7 @@ export default function Register() {
     e.preventDefault()
     
     const success = await register(email, password, username)
-    if (success) {
-      // Redirect to login after a short delay to allow the user to see the success toast
+    if (success) { // Redirect to login after a short delay to allow the user to see the success toast
       setTimeout(() => {
         router.push("/login")
       }, 1500)

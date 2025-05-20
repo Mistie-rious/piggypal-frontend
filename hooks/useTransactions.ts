@@ -1,4 +1,4 @@
-import { getBalance, sendMoney , getBalanceWallet, getTransactions} from "@/api/routes/transactions"
+import { getBalance, sendMoney , getBalanceWallet, getTransactions, unlockWallet} from "@/api/routes/transactions"
 import { useQuery, useMutation } from "@tanstack/react-query"
 import { useQueryClient } from "@tanstack/react-query"
 
@@ -9,6 +9,7 @@ interface SendMoneyParams {
   walletId: string;
   receiverAddress: string;
   description: string;
+  currency: number;
 }
 
 export const useBalance = (walletAddress: string) => {
@@ -41,6 +42,19 @@ export const useBalanceWallet = (userId: string) => {
 
 }
 
+export const useUnlockWallet = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ walletId, password }: { walletId: string; password: string }) =>
+      unlockWallet(walletId, password),
+    onSuccess: (data, variables) => {
+      // Invalidate and refetch relevant queries
+      queryClient.invalidateQueries({ queryKey: ['transactions', variables.walletId] });
+    },
+  });
+}
+
 
 
 
@@ -48,8 +62,8 @@ export const useBalanceWallet = (userId: string) => {
     const queryClient = useQueryClient();
   
     return useMutation({
-      mutationFn: ({ senderAddress, amount, walletId, receiverAddress, description }: SendMoneyParams) =>
-        sendMoney(senderAddress, amount, walletId, receiverAddress, description),
+      mutationFn: ({ senderAddress, amount, walletId, receiverAddress, description, currency }: SendMoneyParams) =>
+        sendMoney(senderAddress, amount, walletId, receiverAddress, description, currency),
       onSuccess: (data, variables) => {
         // Invalidate and refetch relevant queries
         queryClient.invalidateQueries({ queryKey: ['balance', variables.senderAddress] });

@@ -38,6 +38,8 @@ import {
 import { useMe } from "@/hooks/useMe";
 import { useState, useMemo } from "react";
 import { useExportToCSV, useExportToPDF } from "@/hooks/useExports";
+import LoadingSpinner from "@/components/loadingSpinner";
+
 
 // Define types for better type safety
 interface Transaction {
@@ -217,6 +219,12 @@ export default function Transactions() {
 
     return filtered;
   }, [transactions, searchTerm, transactionTypeFilter, dateRangeFilter, statusFilter]);
+
+  { (meLoading || isLoading ) && (
+    <LoadingSpinner size={64} backdropOpacity={70} />
+  )
+}
+
 
   // Export functions using backend routes
   const exportTransactions = async (format: 'csv' | 'pdf') => {

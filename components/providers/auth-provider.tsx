@@ -62,26 +62,36 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const checkAuth = async () => {
       const token = sessionStorage.getItem("jwtToken");
       const userId = sessionStorage.getItem("userId");
+      const userEmail = sessionStorage.getItem("userEmail");
       
-      if (token && userId) {
+      if (token && userId && userEmail) {
         try {
           // You could make an API call to verify the token and get user data
           // For now, we'll just use what we have stored
           setUser({
             id: userId,
-            email: sessionStorage.getItem("userEmail") || "",
+            email: userEmail,
           });
         } catch (err) {
           // Token is invalid, clear storage
-          sessionStorage.removeItem("jwtToken");
-          sessionStorage.removeItem("userId");
-          sessionStorage.removeItem("userEmail");
+          clearAuthData();
         }
+      } else {
+        // Ensure user state is null if any auth data is missing
+        setUser(null);
       }
     };
     
     checkAuth();
   }, []);
+
+  // Helper function to clear all auth-related data
+  const clearAuthData = () => {
+    sessionStorage.removeItem("jwtToken");
+    sessionStorage.removeItem("userId");
+    sessionStorage.removeItem("userEmail");
+    setUser(null);
+  };
 
   const login = async (email: string, password: string): Promise<boolean> => {
     console.log(`Login attempt for email: ${email}`);
@@ -89,6 +99,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setError(null);
     
     try {
+      // Clear any existing auth data before login attempt
+      clearAuthData();
+      
       console.log("Making login API request...");
       const resp = await apiClient.post<ApiResponse<LoginResponse>>("auth/login", { email, password });
       console.log("Login API response received:", resp.data);
@@ -171,13 +184,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const logout = () => {
-    sessionStorage.removeItem("jwtToken");
-    sessionStorage.removeItem("userId");
-    sessionStorage.removeItem("userEmail");
+    // Use our helper function to ensure complete cleanup
+    clearAuthData();
     toast.success('Logout successful!');
-    setUser(null);
+    
+    // Force a page navigation to ensure components re-render
     router.push("/login");
-
+    
+    // Optional: Force a browser refresh to clear any in-memory state
+    // window.location.href = "/login";
   };
 
   return (
