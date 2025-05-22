@@ -14,19 +14,11 @@ import { format, parseISO } from "date-fns";
 import LoadingSpinner from "@/components/loadingSpinner"
 
 // Sample data for the chart
-const chartData = [
-  { name: "Jan", balance: 400000 },
-  { name: "Feb", balance: 500000 },
-  { name: "Mar", balance: 450000 },
-  { name: "Apr", balance: 700000 },
-  { name: "May", balance: 650000 },
-  { name: "Jun", balance: 800000 },
-  { name: "Jul", balance: 900000 },
-]
 
 export default function Dashboard() {
+  console.log("🏠 Dashboard page rendering");
   // Call all hooks at the top, unconditionally
-  const { user, logout } = useAuth();
+
   const { data: me, isLoading: meLoading, error: meError } = useMe();
   
   // Safe access to me.data with fallbacks
@@ -52,10 +44,21 @@ export default function Dashboard() {
     );
   
     for (const tx of sortedTx) {
+
+      console.log("Assuming 0 = Deposit");
+for (const tx of transactionsData) {
+  console.log(`Type: ${tx.type}, Amount: ${tx.amount}, Treated as: ${tx.TransactionType === 0 ? "Deposit" : "Withdrawal"}`);
+}
+
+console.log("Assuming 1 = Deposit");
+for (const tx of transactionsData) {
+  console.log(`Type: ${tx.type}, Amount: ${tx.amount}, Treated as: ${tx.TransactionType === 1 ? "Deposit" : "Withdrawal"}`);
+}
+
       const timeLabel = format(parseISO(tx.createdAt), "HH:mm:ss");
       const amountInNaira = tx.amount * ethToNaira;
   
-      if (tx.TransactionType === 1) {
+      if (tx.type === 0) {
         cumulativeBalance += amountInNaira;
       } else {
         cumulativeBalance -= amountInNaira;
@@ -70,6 +73,8 @@ export default function Dashboard() {
     return cumulativeData;
   })();
 
+  
+
 
 const ethToNairaRate = 4500000; 
 const nairaBalanceRaw = walletData?.balance * ethToNairaRate; 
@@ -79,13 +84,11 @@ const nairaBalance = `₦${nairaBalanceRaw.toLocaleString("en-NG", {
   maximumFractionDigits: 2
 })}`;
   // Handle loading and error states after all hooks
-  if (meLoading || walletLoading || transLoading) {
+  if (meLoading || walletLoading || transLoading || !walletData || !me?.data) {
     return <div> <LoadingSpinner/></div>;
   }
 
-  if (meError) {
-    return <div>Error loading user data: {meError.message}</div>;
-  }
+
 
   // Debugging logs (optional, remove in production)
   console.log("Transactions Data:", transactionsData);

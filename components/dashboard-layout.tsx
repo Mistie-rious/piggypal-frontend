@@ -10,12 +10,13 @@ import { ToastContainer, toast } from 'react-toastify';
 import { useAuth } from "./providers/auth-provider"
 import { useMe } from "@/hooks/useMe"
 import { usePathname } from "next/navigation"
+import { ProtectedRoute } from "./protectedRoute"
 interface DashboardLayoutProps {
   children: ReactNode
 }
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
-  const { user, logout } = useAuth();
+  const {  logout } = useAuth();
   const { data: me, isLoading: meLoading, error: meError } = useMe();
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
@@ -33,6 +34,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     
   }
   return (
+
     <div className="min-h-screen flex flex-col md:flex-row">
       {/* Mobile sidebar toggle */}
       <div className="md:hidden fixed top-4 left-4 z-50">
@@ -110,5 +112,6 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         <main className="min-h-screen">{children}</main>
       </div>
     </div>
+
   )
 }

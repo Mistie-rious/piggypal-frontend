@@ -6,6 +6,7 @@ import apiClient from "@/api/apiClient";
 import { useToast } from "@/hooks/use-toast"
 import { ToastContainer, toast } from 'react-toastify';
 import axios from "axios";
+import { useQueryClient } from "@tanstack/react-query";
 
 // Define our interfaces
 interface User {
@@ -55,6 +56,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const queryClient = useQueryClient();
   
 
   // Check if user is already logged in on mount
@@ -98,10 +100,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsLoading(true);
     setError(null);
     
+    // Clear user state immediately and wait for it to take effect
+    setUser(null);
+    clearAuthData();
+    
     try {
-      // Clear any existing auth data before login attempt
-      clearAuthData();
-      
       console.log("Making login API request...");
       const resp = await apiClient.post<ApiResponse<LoginResponse>>("auth/login", { email, password });
       console.log("Login API response received:", resp.data);
@@ -120,16 +123,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       sessionStorage.setItem("userId", userId);
       sessionStorage.setItem("userEmail", email);
       
-      setUser({
+      // Set the new user data
+      const newUser = {
         id: userId,
         email: email,
-      });
+      };
+      
+      setUser(newUser);
       
       console.log(`User ${userId} successfully logged in`);
       toast.success("Login successful!");
       return true;
     } catch (err: any) {
       console.error("Login error:", err);
+      // Ensure user state is cleared on error
+      setUser(null);
+      clearAuthData();
+      
       if (axios.isAxiosError(err)) {
         console.error(`Axios error: ${err.message}, Status: ${err.response?.status}, Data:`, err.response?.data);
         
@@ -184,17 +194,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const logout = () => {
-    // Use our helper function to ensure complete cleanup
+    console.log("Logging out user");
+    
+    // Clear user state first
+    setUser(null);
+    
+    // Clear storage
     clearAuthData();
+    
+    // Clear all React Query cache
+    queryClient.clear();
+    
     toast.success('Logout successful!');
     
     // Force a page navigation to ensure components re-render
     router.push("/login");
-    
-    // Optional: Force a browser refresh to clear any in-memory state
-    // window.location.href = "/login";
   };
-
   return (
     <AuthContext.Provider
       value={{

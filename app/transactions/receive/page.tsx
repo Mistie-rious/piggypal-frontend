@@ -14,9 +14,11 @@ import { useBalanceWallet } from "@/hooks/useTransactions"
 import Link from "next/link"
 import { Input } from "@/components/ui/input"
 import { toast , ToastContainer} from "react-toastify"
+import { useRouter } from "next/navigation"
 import LoadingSpinner from "@/components/loadingSpinner"
-
+import { ProtectedRoute } from "@/components/protectedRoute"
 export default function Receive() {
+  const router = useRouter()
   const { data: me, isLoading: meLoading, error: meError } = useMe();
   const myAddresses = me?.data.walletAddress!;
   const displayAddress = myAddresses
@@ -28,7 +30,10 @@ export default function Receive() {
 if (meLoading){
   return <LoadingSpinner size={80} backdropOpacity={70} />
 }
+
+
   return (
+    <ProtectedRoute>
     <DashboardLayout>
       <div className="p-6 flex justify-center">
         <div className="w-full max-w-md">
@@ -106,5 +111,6 @@ if (meLoading){
         </div>
       </div>
     </DashboardLayout>
+    </ProtectedRoute>
   )
 }

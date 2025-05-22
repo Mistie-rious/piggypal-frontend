@@ -15,6 +15,7 @@ import { toast, ToastContainer } from "react-toastify"
 import { useSendMoney, useBalanceWallet } from "@/hooks/useTransactions"
 import { useMe } from "@/hooks/useMe"
 import { UnlockWalletDialog } from "@/components/UnlockWallet"
+import { ProtectedRoute } from "@/components/protectedRoute"
 import LoadingSpinner from "@/components/loadingSpinner"
 export default function Send() {
   const UNLOCK_KEY = "walletUnlockedUntil"
@@ -26,6 +27,7 @@ export default function Send() {
   const [selectedAsset, setSelectedAsset] = useState("eth")
   const [isWalletUnlocked, setIsWalletUnlocked] = useState(false)
 
+  const router = useRouter()
   const { data: me, isLoading: meLoading } = useMe()
   const walletId = me?.data.walletId ?? ""
   const userId = me?.data.id ?? ""
@@ -42,7 +44,7 @@ export default function Send() {
     }
   }, [walletId])
 
-  const { data: walletData, isLoading: walletLoading } = useBalanceWallet(userId)
+  const { data: walletData, isLoading: walletLoading } = userId ? useBalanceWallet(userId) : { data: null, isLoading: false }
   const { mutate: sendMoney, isPending } = useSendMoney()
 
   const ethToNairaRate = 4500000
@@ -110,6 +112,7 @@ export default function Send() {
   }
 
   return (
+    <ProtectedRoute>
     <DashboardLayout>
       <div className="p-6 flex justify-center">
         <div className="w-full max-w-md">
@@ -215,5 +218,6 @@ export default function Send() {
         </div>
       </div>
     </DashboardLayout>
+    </ProtectedRoute>
   )
 }

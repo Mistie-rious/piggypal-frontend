@@ -23,22 +23,43 @@ export default function Login() {
   const router = useRouter()
 
   useEffect(() => {
-    if (isAuthenticated) {
-      router.push("/dashboard")
-    }
-  }, [isAuthenticated, router])
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    try {
-      const success = await login(email, password)
-      if (!success) {
-        toast.error("Invalid credentials. Please try again.")
-      }
-      // on success, isAuthenticated changes and effect triggers redirect
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Login failed.")
+    if (!isLoading && isAuthenticated) {
+      console.log("User already authenticated, redirecting to dashboard");
+      router.push("/dashboard");
     }
+  }, [isLoading, isAuthenticated, router]);
+
+  const handleSubmit = async (e: any) => {
+    e.preventDefault();
+    
+    // Prevent multiple submissions
+    if (isLoading) return;
+    
+    const success = await login(email, password);
+    if (success) {
+      // Successfully logged in, navigate to dashboard
+      // The useEffect will handle this redirect automatically
+      console.log("Login successful");
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <LoadingSpinner />
+      </div>
+    );
+  }
+
+  // Don't show login form if already authenticated
+  if (isAuthenticated) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <LoadingSpinner />
+        <p>Already logged in. Redirecting...</p>
+      </div>
+    );
   }
 
   return (

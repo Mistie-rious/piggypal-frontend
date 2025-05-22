@@ -10,10 +10,10 @@ export const getBalance = async (walletAddress: string) => {
 
 export const sendMoney = async (senderAddress: string, amount: number, walletId: string, receiverAddress: string, description:string, currency:number) => {
     const {data} = await apiClient.post('transactions/send', {
-        sender: senderAddress,
+        senderAddress: senderAddress,
         amount,
         walletId,
-        receiver: receiverAddress,
+        receiverAddress: receiverAddress,
         description,
         currency
     })
