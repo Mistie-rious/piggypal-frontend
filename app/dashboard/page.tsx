@@ -34,38 +34,28 @@ export default function Dashboard() {
     if (!transactionsData || transactionsData.length === 0) return [];
   
     const ethToNaira = 4500000;
+    const dailyTotals: Record<string, number> = {};
+  
+    // Group transactions by date and sum them
+    for (const tx of transactionsData) {
+      const date = format(parseISO(tx.createdAt), "yyyy-MM-dd");
+      const amountInNaira = tx.amount * ethToNaira;
+      const signedAmount = tx.type === 0 ? amountInNaira : -amountInNaira;
+  
+      if (!dailyTotals[date]) dailyTotals[date] = 0;
+      dailyTotals[date] += signedAmount;
+    }
+  
+    // Create cumulative data from daily totals
+    const sortedDates = Object.keys(dailyTotals).sort();
+    let cumulativeBalance = 0;
     const cumulativeData: { name: string; balance: number }[] = [];
   
-    let cumulativeBalance = 0;
-  
-    // Sort by timestamp (oldest first)
-    const sortedTx = [...transactionsData].sort(
-      (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-    );
-  
-    for (const tx of sortedTx) {
-
-      console.log("Assuming 0 = Deposit");
-for (const tx of transactionsData) {
-  console.log(`Type: ${tx.type}, Amount: ${tx.amount}, Treated as: ${tx.TransactionType === 0 ? "Deposit" : "Withdrawal"}`);
-}
-
-console.log("Assuming 1 = Deposit");
-for (const tx of transactionsData) {
-  console.log(`Type: ${tx.type}, Amount: ${tx.amount}, Treated as: ${tx.TransactionType === 1 ? "Deposit" : "Withdrawal"}`);
-}
-
-      const timeLabel = format(parseISO(tx.createdAt), "HH:mm:ss");
-      const amountInNaira = tx.amount * ethToNaira;
-  
-      if (tx.type === 0) {
-        cumulativeBalance += amountInNaira;
-      } else {
-        cumulativeBalance -= amountInNaira;
-      }
-  
+    for (const date of sortedDates) {
+      cumulativeBalance += dailyTotals[date];
+      if (cumulativeBalance < 0) cumulativeBalance = 0; // prevent negatives
       cumulativeData.push({
-        name: timeLabel,  // use HH:mm:ss as X axis
+        name: format(parseISO(date), "dd MMM"), // nice readable format
         balance: cumulativeBalance,
       });
     }
@@ -197,7 +187,7 @@ const nairaBalance = `₦${nairaBalanceRaw.toLocaleString("en-NG", {
   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
   <XAxis dataKey="name" stroke="#888888" />
   <YAxis stroke="#888888" tickFormatter={(value) => `₦${value / 1000}k`} />
-  <Tooltip formatter={(value) => [`₦ ${value}`, "Balance"]} />
+  <Tooltip formatter={(value) => [`₦  ${value}`, "Balance"]} />
   <Line
     type="monotone"
     dataKey="balance"
@@ -257,10 +247,10 @@ const nairaBalance = `₦${nairaBalanceRaw.toLocaleString("en-NG", {
                     </div>
                     <div className="text-right">
                       <div
-                        className={`font-medium ${transaction.TransactionType === "received" ? "text-green-500" : "text-red-500"}`}
+                        className={`font-medium ${transaction.type === 0 ? "text-green-500" : "text-red-500"}`}
                       >
                         
-                         {transaction.TransactionType === "received" ? "+" : "-"} <span> ETH </span>
+                         {transaction.type === 0 ? "+" : "-"} <span> ETH </span>
                          {transaction.amount}
                       </div>
                       <div
